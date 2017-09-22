@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "72530026290",
+    "firebase_url": "https://matrix-cab-app.firebaseio.com",
+    "project_id": "matrix-cab-app",
+    "storage_bucket": "matrix-cab-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72530026290:android:0d2a2f635638fc91",
+        "android_client_info": {
+          "package_name": "zw.co.matrixcab.matrixcab"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72530026290-29rv5pdu5dnmolas6ljir10mfpq3642i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADJb5tuSQ8uUQKuzB_DYiMu61HiolmP_Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
