@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "26.0.0"
 
     def versionPropsFile = file('version.properties')
 
@@ -19,7 +19,7 @@ android {
         }
 
         def versionMajor = 1
-        def versionMinor = 1
+        def versionMinor = 2
         def versionPatch = versionProps['VERSION_PATCH'].toInteger() + value
         def versionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
         def versionNumber = versionProps['VERSION_NUMBER'].toInteger() + value
@@ -74,6 +74,7 @@ dependencies {
 
 
 
+    compile 'com.github.stfalcon:smsverifycatcher:0.3.1'
 
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.paypal.sdk:paypal-android-sdk:2.15.3'

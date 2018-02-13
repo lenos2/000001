@@ -31,6 +31,7 @@ import android.view.SubMenu;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,10 @@ import zw.co.matrixcab.matrixcab.session.SessionManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.sdsmdg.tastytoast.TastyToast;
+import com.stfalcon.smsverifycatcher.OnSmsCatchListener;
+import com.stfalcon.smsverifycatcher.SmsVerifyCatcher;
 import com.thebrownarrow.permissionhelper.ActivityManagePermission;
 
 import org.json.JSONException;
@@ -72,6 +76,8 @@ public class HomeActivity extends ActivityManagePermission implements Navigation
     NavigationView navigationView;
     SessionManager sessionManager;
     private ImageView avatar;
+    public static SmsVerifyCatcher smsVerifyCatcher;
+    public static String ride_id = "";
 
     private static final String TAG = "firebase token";
 
@@ -122,6 +128,83 @@ public class HomeActivity extends ActivityManagePermission implements Navigation
             }
         };*/
 
+        smsVerifyCatcher = new SmsVerifyCatcher(this, new OnSmsCatchListener<String>() {
+            @Override
+            public void onSmsCatch(String message) {
+                //String code = parseCode(message);//Parse verification code
+                RequestParams params = new RequestParams();
+                params.put("ride_id", HomeActivity.ride_id);
+                params.put("payment_status", "PAID");
+                params.put("payment_mode", getResources().getString(R.string.ecocash));
+                Server.setContetntType();
+                Server.setHeader(sessionManager.getKEY());
+                if (parseCode(message)){
+                    Server.post("api/user/rides", params, new TextHttpResponseHandler() {
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            Toast.makeText(HomeActivity.this, "Connection Failed", Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                            //paynow.loadData(responseString,"text/html", "UTF-8");
+                            Toast.makeText(HomeActivity.this,"Payment Successful",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(PaynowActivity.this,responseString, Toast.LENGTH_LONG).show();
+                            smsVerifyCatcher.onStop();
+                        }
+                    });
+
+                }
+                //etCode.setText(code);//set code in edit text
+                //then you can send verification code to server
+
+
+
+
+            }
+        });
+        smsVerifyCatcher.setPhoneNumberFilter("+263164");
+    }
+
+    private boolean parseCode(String message) {
+
+        String
+                merchantCode=getResources().getString(R.string.merchantCode)
+                , accountName=getResources().getString(R.string.accountName);
+        boolean merchantValidation,receiverValid;
+
+        if (message.toLowerCase().contains(merchantCode.toLowerCase()) &&
+                message.toLowerCase().contains(accountName.toLowerCase())){
+            merchantValidation = true;
+        } else {
+            merchantValidation = false;
+        }
+        /*
+
+
+
+        merchantCode = message.substring(message.indexOf("(")+1,message.indexOf(")"));
+
+
+        if (merchantCode == "12345"){
+            validation = true;
+        } else
+            validation = false;
+        */
+
+        /*Pattern p = Pattern.compile("\\b\\d{4}\\b");
+        Matcher m = p.matcher(message);
+        String code = "";
+        while (m.find()) {
+            code = m.group(0);
+        }*/
+
+        //return validation;
+
+        receiverValid = message.toLowerCase().contains(accountName.toLowerCase());
+
+        return merchantValidation;
     }
 
     private void setupDrawer() {
