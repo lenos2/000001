@@ -303,6 +303,11 @@ public class AcceptedDetailFragment extends Fragment {
                                                                Intent intent = new Intent(view.getContext(), PaynowActivity.class);
                                                                intent.putExtras(values);
                                                                startActivity(intent);
+                                                           } if (which == 2){
+                                                               /**
+                                                                * Payment made using Ecocash short code
+                                                                * */
+                                                               ecocashTransaction(basefare);
                                                            }else {
                                                                MakePayment();
                                                            }
@@ -334,7 +339,8 @@ public class AcceptedDetailFragment extends Fragment {
 
     public void paynowPayment(){
         /**
-         * This is code to allow payments to be done via paynow*/
+         * This is code to allow payments to be done via paynow
+         * */
 
         RequestParams params = new RequestParams();
         params.put("ride_id", ride_id);
@@ -543,6 +549,34 @@ public class AcceptedDetailFragment extends Fragment {
 
             }
         });
+
+    }
+
+    private void ecocashTransaction(String fare){
+        //Send order to shop with pending payment status and get order number
+
+        double totalPrice = Double.parseDouble(fare);
+
+        if (totalPrice > Math.round(totalPrice)){
+            totalPrice = Math.round(totalPrice);
+        }
+
+        HomeActivity.ride_id = ride_id;
+        //listener.onSale(s);
+        //Make payment via ecocash
+        //String ussdCode = "*151*1*1*0772366695*"+ String.format("%.0f",totalPrice)+ Uri.encode("#");
+        String ussdCode = "*151*2*2*59493*"+ String.format("%.0f",totalPrice)+ Uri.encode("#");
+
+        Intent kufona = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode));
+
+        HomeActivity.smsVerifyCatcher.onStart();
+        startActivity(kufona);
+
+
+        //Send Payment Confirmation to shop when payment is complete
+        //progressDialog.setMessage("Waiting for Payment confirmation");
+        //progressDialog.show();
+
 
     }
 

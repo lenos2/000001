@@ -25,10 +25,15 @@
     <string name="paypal_payment_currency">USD</string>
     <string name="cash_on_hand">Request Cash On Hand to driver</string>
     <string name="change_password">CHANGE PASSWORD</string>
+    <string name="ecocash">ECOCASH</string>
+    <string name="accountName">simbarashe zvineyi</string>
+    <string name="merchantName">simbarashe zvineyi</string>
+    <string name="merchantCode">59493</string>
 
     <string-array name="payment_mode">
         <item>Cash on hand [to driver]</item>
         <item>Pay via Paynow</item>
+        <item>Ecocash</item>
         <!--<item>Pay via Paynow (Coming Soon)</item>-->
     </string-array>
 

@@ -1,13 +1,29 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        //noinspection GradleDynamicVersion
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.0"
 
     def versionPropsFile = file('version.properties')
 
     if (versionPropsFile.canRead()) {
-        def Properties versionProps = new Properties()
+        Properties versionProps = new Properties()
 
         versionProps.load(new FileInputStream(versionPropsFile))
 
@@ -15,11 +31,11 @@ android {
 
         def runTasks = gradle.startParameter.taskNames
         if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks) {
-            value = 1;
+            value = 1
         }
 
         def versionMajor = 1
-        def versionMinor = 1
+        def versionMinor = 2
         def versionPatch = versionProps['VERSION_PATCH'].toInteger() + value
         def versionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
         def versionNumber = versionProps['VERSION_NUMBER'].toInteger() + value
@@ -32,11 +48,12 @@ android {
 
         defaultConfig {
             applicationId "zw.co.matrixcab.matrixcab"
-            minSdkVersion 17
-            targetSdkVersion 25
+            minSdkVersion 16
+            targetSdkVersion 27
             versionCode versionNumber
             versionName "${versionMajor}.${versionMinor}.${versionPatch} (${versionBuild}) Release"
             testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+            multiDexEnabled true
         }
 
         applicationVariants.all { variant ->
@@ -45,22 +62,31 @@ android {
                 variant.outputs.each { output2 ->
                     def outputFile = output2.outputFile
                     if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                        output2.outputFile = new File(getProject().getRootDir(), "${fileNaming}-${versionMajor}.${versionMinor}.${versionPatch}-${outputFile.name}")
+                        //output2.outputFile = new File(getProject().getRootDir(), "${fileNaming}-${versionMajor}.${versionMinor}.${versionPatch}-${outputFile.name}")
+                        output2.outputFileName = "${fileNaming}-${versionMajor}.${versionMinor}.${versionPatch}-${outputFile.name}"
                     }
                 }
+            }
+        }
+
+        applicationVariants.all { variant ->
+            variant.outputs.all {
+                outputFileName = "${variant.name}-${variant.versionName}.apk"
             }
         }
 
     } else {
         throw new GradleException("Could not read version.properties!")
     }
-
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
@@ -74,27 +100,33 @@ dependencies {
 
 
 
+    compile 'com.github.stfalcon:smsverifycatcher:0.3.1'
 
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:27.0.2'
+    compile 'com.android.support:support-compat:27.0.2'
     compile 'com.paypal.sdk:paypal-android-sdk:2.15.3'
     compile 'com.github.TheBrownArrow:PermissionManager:1.0.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'gun0912.ted:tedbottompicker:1.0.9'
+    compile 'gun0912.ted:tedbottompicker:1.0.12'
     compile 'com.akexorcist:googledirectionlibrary:1.0.5'
     compile 'com.loopj.android:android-async-http:1.4.9'
-    compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-maps:11.0.0'
-    compile 'com.google.android.gms:play-services-location:11.0.0'
-    compile 'com.google.android.gms:play-services-places:11.0.0'
-    compile 'com.google.android.gms:play-services-base:11.0.0'
-    compile 'com.google.firebase:firebase-messaging:11.0.0'
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.github.bumptech.glide:glide:4.6.1'
+    compile 'com.android.support:design:27.0.2'
+    compile 'com.android.support:cardview-v7:27.0.2'
+    compile 'com.google.android.gms:play-services-maps:11.8.0'
+    compile 'com.google.android.gms:play-services-location:11.8.0'
+    compile 'com.google.android.gms:play-services-places:11.8.0'
+    compile 'com.google.android.gms:play-services-base:11.8.0'
+    compile 'com.google.firebase:firebase-messaging:11.8.0'
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.android.support:multidex:1.0.2'
     compile 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true
+    }
+
+    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta4'
     testCompile 'junit:junit:4.12'
 }
 
