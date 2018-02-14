@@ -83,6 +83,9 @@
             android:resource="@color/hint" />
 
         <activity android:name=".acitivities.PaynowActivity"></activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9bd92d2a3568cdc60feac65151fa3df43208be53" />
     </application>
 
 </manifest>

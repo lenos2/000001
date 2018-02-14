@@ -17,8 +17,13 @@ repositories {
 
 
 android {
+<<<<<<< HEAD
     compileSdkVersion 27
     buildToolsVersion "27.0.0"
+=======
+    compileSdkVersion 25
+    buildToolsVersion "26.0.0"
+>>>>>>> 70d742959f17b146946cba197d3b6d22e9e50abd
 
     def versionPropsFile = file('version.properties')
 

@@ -48,6 +48,7 @@ import zw.co.matrixcab.matrixcab.fragement.PengingRequest;
 import zw.co.matrixcab.matrixcab.fragement.ProfileFragment;
 import zw.co.matrixcab.matrixcab.session.SessionManager;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -330,7 +331,8 @@ public class HomeActivity extends ActivityManagePermission implements Navigation
     @Override
     public void update(String url) {
         if (!url.equals("")) {
-            Glide.with(getApplicationContext()).load(url).error(R.drawable.images).into(avatar);
+            RequestOptions mOptions = new RequestOptions().error(R.drawable.images);
+            Glide.with(getApplicationContext()).load(url).apply(mOptions).into(avatar);
         }
     }
 
@@ -449,8 +451,8 @@ public class HomeActivity extends ActivityManagePermission implements Navigation
                 String name = user.get(SessionManager.KEY_NAME);
                 String url = user.get(SessionManager.AVATAR);
                 username.setText(name);
-                Glide.with(getApplicationContext()).load(url).error(R.mipmap.ic_account_circle_black_24dp).into(avatar);
-
+                RequestOptions mOptions = new RequestOptions().error(R.mipmap.ic_account_circle_black_24dp);
+                Glide.with(getApplicationContext()).load(url).apply(mOptions).into(avatar);
             }
 
         }
@@ -491,7 +493,8 @@ public class HomeActivity extends ActivityManagePermission implements Navigation
                         String mobile = response.getJSONObject("data").getString("mobile");
                         sessionManager.createLoginSession(name, email, user_id, url, mobile);
 
-                        Glide.with(HomeActivity.this).load(url).error(R.drawable.images).into(avatar);
+                        RequestOptions mOptions = new RequestOptions().error(R.drawable.images);
+                        Glide.with(HomeActivity.this).load(url).apply(mOptions).into(avatar);
                         username.setText(name);
 
 

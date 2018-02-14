@@ -70,7 +70,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="John Doe"
+                            android:text="..."
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     </TableRow>
@@ -94,7 +94,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="+919924580789"
+                            android:text="..."
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     </TableRow>
@@ -118,7 +118,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="W90th ,Newyork ,NY 10025"
+                            android:text="..."
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     </TableRow>
@@ -142,7 +142,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="46th Ave,Woodside Ny 11101"
+                            android:text="..."
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     </TableRow>
@@ -166,7 +166,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="₹ 15/km"
+                            android:text="$ 0/km"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     </TableRow>

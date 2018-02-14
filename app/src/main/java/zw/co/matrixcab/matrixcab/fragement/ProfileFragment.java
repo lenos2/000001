@@ -42,6 +42,7 @@ import cz.msebera.android.httpclient.Header;
 import gun0912.tedbottompicker.TedBottomPicker;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -280,7 +281,8 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
                 input_name.setText(name);
                 input_email.setText(email);
                 input_mobile.setText(mobile);
-                Glide.with(getActivity()).load(avatar).error(R.mipmap.ic_account_circle_black_24dp).into(profile_pic);
+                RequestOptions mOptions = new RequestOptions().error(R.mipmap.ic_account_circle_black_24dp);
+                Glide.with(getActivity()).load(avatar).apply(mOptions).into(profile_pic);
             }
 
         }
@@ -576,7 +578,7 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        android.location.Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         if (location == null) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -677,7 +679,8 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
                     if (response.has("status") && response.getString("status").equalsIgnoreCase("success")) {
 
                         String rurl = response.getJSONObject("data").getString("avatar");
-                        Glide.with(getActivity()).load(rurl).error(R.mipmap.ic_account_circle_black_24dp).into(profile_pic);
+                        RequestOptions mOptions = new RequestOptions().error(R.mipmap.ic_account_circle_black_24dp);
+                        Glide.with(ProfileFragment.this).load(rurl).apply(mOptions).into(profile_pic);
                         profileUpdateListener.update(rurl);
 
                         HashMap<String, String> user = sessionManager.getUserDetails();
@@ -728,19 +731,23 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
             params.put("user_id", uid);
         }
 
-        String url = user.get(SessionManager.AVATAR);
-        String name = user.get(SessionManager.KEY_NAME);
-        String email = user.get(SessionManager.KEY_EMAIL);
-        String mobile = user.get(SessionManager.KEY_MOBILE);
+        try {
+            String url = user.get(SessionManager.AVATAR);
+            String name = user.get(SessionManager.KEY_NAME);
+            String email = user.get(SessionManager.KEY_EMAIL);
+            String mobile = user.get(SessionManager.KEY_MOBILE);
 
-        Glide.with(getActivity()).load(url).error(R.mipmap.ic_account_circle_black_24dp).into(profile_pic);
-        input_name.setText(name);
-        input_mobile.setText(mobile);
-        input_email.setText(email);
+            RequestOptions mOptions = new RequestOptions().error(R.mipmap.ic_account_circle_black_24dp);
+            Glide.with(getActivity()).load(url).apply(mOptions).into(profile_pic);
+            input_name.setText(name);
+            input_mobile.setText(mobile);
+            input_email.setText(email);
+        } catch (Exception e) {
 
-        if (url.equals("") || name.equals("") || email.equals("") || mobile.equals("")) {
+        }
 
-            Server.setHeader(sessionManager.getKEY());
+
+        Server.setHeader(sessionManager.getKEY());
             Server.get("api/user/profile/format/json", params, new JsonHttpResponseHandler() {
                 @Override
                 public void onStart() {
@@ -758,7 +765,8 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
                         if (response.has("status") && response.getString("status").equalsIgnoreCase("success")) {
                             String url = response.getJSONObject("data").getString("avatar");
                             String namee = response.getJSONObject("data").getString("name");
-                            Glide.with(getActivity()).load(url).error(R.mipmap.ic_account_circle_black_24dp).into(profile_pic);
+                            RequestOptions mOptions = new RequestOptions().error(R.mipmap.ic_account_circle_black_24dp);
+                            Glide.with(getActivity()).load(url).apply(mOptions).into(profile_pic);
                             input_name.setText(response.getJSONObject("data").getString("name"));
                             input_mobile.setText(response.getJSONObject("data").getString("mobile"));
                             input_email.setText(response.getJSONObject("data").getString("email"));
@@ -802,23 +810,8 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
                     TastyToast.makeText(getActivity(), "fail", TastyToast.LENGTH_LONG, TastyToast.ERROR).show();
                 }
             });
-        } else {
-            //
-        }
 
 
-        /*else {
-            TastyToast.makeText(getActivity(), "network is not available", TastyToast.LENGTH_LONG, TastyToast.ERROR).show();
-            String name = user.get(SessionManager.KEY_NAME);
-            String email = user.get(SessionManager.KEY_EMAIL);
-            String mobile = user.get(SessionManager.KEY_MOBILE);
-            String uid = user.get(SessionManager.USER_ID);
-            String avatar = user.get(SessionManager.AVATAR);
-            input_name.setText(name);
-            input_email.setText(email);
-            input_mobile.setText(mobile);
-            Glide.with(getActivity()).load(avatar).error(R.mipmap.ic_account_circle_black_24dp).into(profile_pic);
-        }*/
 
     }
 
@@ -879,7 +872,7 @@ public class ProfileFragment extends FragmentManagePermission implements GoogleA
                         }
                     }
                 } else {
-                    confirm_password.setError("new password is required ");
+                    confirm_password.setError("New password is required ");
                 }
 
             }

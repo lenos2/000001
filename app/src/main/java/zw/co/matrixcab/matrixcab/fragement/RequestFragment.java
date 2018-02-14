@@ -1,6 +1,5 @@
 package zw.co.matrixcab.matrixcab.fragement;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,8 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -36,108 +33,80 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import zw.co.matrixcab.matrixcab.R;
 import zw.co.matrixcab.matrixcab.Server.Server;
 import zw.co.matrixcab.matrixcab.acitivities.HomeActivity;
 import zw.co.matrixcab.matrixcab.custom.CheckConnection;
-import zw.co.matrixcab.matrixcab.custom.GrabAddress;
 import zw.co.matrixcab.matrixcab.session.SessionManager;
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.paypal.android.sdk.payments.PayPalAuthorization;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
-import com.paypal.android.sdk.payments.PayPalFuturePaymentActivity;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
-import com.paypal.android.sdk.payments.PaymentActivity;
-import com.paypal.android.sdk.payments.PaymentConfirmation;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.thebrownarrow.permissionhelper.FragmentManagePermission;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import cz.msebera.android.httpclient.Header;
-
-import static com.loopj.android.http.AsyncHttpClient.DEFAULT_MAX_CONNECTIONS;
 
 /**
  * Created by android on 14/3/17.
  */
 
 public class RequestFragment extends FragmentManagePermission implements OnMapReadyCallback, DirectionCallback {
+    private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
     View view;
     AppCompatButton confirm, cancel;
     TextView pickup_location, drop_location;
     Double finalfare;
     MapView mapView;
-    private Double fare;
-    //  private String serverKey = "AIzaSyBIso2PmHjbDoyvlGEd08L7UtYKAEXk9_w";
-    private String serverKey = "AIzaSyAlBu8MsC7jxJ68rpRR722Ojl_HQiWpnhQ";
-
     GoogleMap myMap;
     AlertDialog alert;
+    TextView textView1, textView2, textView3, textView4, textView5, txt_name, txt_number, txt_fare, title;
+    ProgressDialog progressDialog;
+    LatLng pickup, drop;
+    SessionManager sessionManager;
+    String driver_id;
+    String distance = "";
+    PayPalPayment thingToBuy;
+    private Double fare;
+    private String serverKey =Server.MAPS_APIKEY_BROWSER;
     private LatLng origin;
     private LatLng destination;
     private String NETWORKNOT_AVAILABLE;
     private String TRY_AGIAN;
     private String DIRECTION_REQUEST, DIRECTION_FAIL;
-
-    TextView textView1, textView2, textView3, textView4, textView5, txt_name, txt_number, txt_fare, title;
     private LatLng temp;
-    ProgressDialog progressDialog;
-    LatLng pickup, drop;
     private String REQUEST_RIDE;
-    SessionManager sessionManager;
-    String driver_id;
     private String user_id;
     private String pickup_address = "";
     private String drop_address = "";
     private String TAG = "request fragment";
-    String distance = "";
     private String ride_id = "";
     private String drivername = "";
-    private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
+    private String driverNumber = "";
 
-    // note that these credentials will differ between live & sandbox
-    // environments.
-    private static final String CONFIG_CLIENT_ID = "Aad5iRmGB21BgnLAQi_K92Ecup2vdB08YQgmk81tf_OVf_sK7FcNXGuqMCIDWyli9lNzkqqIDF72TRT3";
+    public static double round(double value, int places) {
+        if (places < 0) return 0;
 
-    private static final int REQUEST_CODE_PAYMENT = 1;
-    private static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
-
-    //private static final String CONFIG_CLIENT_ID = "AT5Isspr04a8035UuQ5LCErdEDSlEQqJtdGe1mrRSJmRKjkS-YEkiRJNG46xdsPPpNnwbtO4y5dMwd94";
-    private static PayPalConfiguration config = new PayPalConfiguration()
-            .environment(CONFIG_ENVIRONMENT)
-            .clientId("AYi2W29-PSkOI0-utUCLVEuPL1qP8BjYCEOAz3OlnDomdc8yXl10QbGJVX3yc7QgZwM2AEgGn-3K-aoM")
-            // The following are only used in PayPalFuturePaymentActivity.
-            .merchantName("Taxi App")
-            .merchantPrivacyPolicyUri(
-                    Uri.parse("https://www.example.com/privacy"))
-            .merchantUserAgreementUri(
-                    Uri.parse("https://www.example.com/legal"));
-
-    PayPalPayment thingToBuy;
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //serverKey = getContext().getString(R.string.google_android_map_api_key);
         NETWORKNOT_AVAILABLE = getResources().getString(R.string.network);
         TRY_AGIAN = getResources().getString(R.string.try_again);
         DIRECTION_REQUEST = getResources().getString(R.string.direction_request);
@@ -269,28 +238,22 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
             origin = bundle.getParcelable("pickup");
             destination = bundle.getParcelable("drop");
             driver_id = bundle.getString("driver_id");
+            pickup_address = bundle.getString("pickup_address");
+            drop_address = bundle.getString("drop_address");
+            driver_id = bundle.getString("driver_id");
             fare = Double.valueOf(bundle.getString("fare"));
             drivername = bundle.getString("drivername");
             if (drivername != null && !drivername.equals("")) {
                 txt_name.setText(drivername);
             }
+            driverNumber = bundle.getString("driverNumber","");
+            txt_number.setText(driverNumber);
 
         } else {
             //Do nothing
         }
         overrideFonts(getActivity(), view);
 
-
-       /* GPSTracker gps = new GPSTracker(getActivity());
-        if (gps.canGetLocation()) {
-            lat = gps.getLatitude();
-            log = gps.getLongitude();
-            Log.d("latitude", String.valueOf(lat));
-            Log.d("longitude", String.valueOf(log));
-
-        } else {
-            gps.showSettingsAlert();
-        }*/
 
         if (sessionManager != null) {
             HashMap<String, String> getDetail = sessionManager.getUserDetails();
@@ -312,20 +275,7 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
         } else {
             distanceAlert(direction.getErrorMessage());
         }
-        GrabAddress grabAddress = new GrabAddress();
 
-        try {
-            pickup_address = grabAddress.downloadUrl(origin.latitude, origin.longitude);
-
-        } catch (IOException e) {
-            Log.e("catch", e.toString());
-        }
-        try {
-            drop_address = grabAddress.downloadUrl(destination.latitude, destination.longitude);
-
-        } catch (IOException e) {
-            Log.e("catch", e.toString());
-        }
         pickup_location.setText(pickup_address);
         drop_location.setText(drop_address);
         myMap.addMarker(new MarkerOptions().position(new LatLng(origin.latitude, origin.longitude)).title("Pickup Location").snippet(pickup_address).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
@@ -357,14 +307,15 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
             //getLatLongInfo(lat, log, BitmapDescriptorFactory.fromResource(R.drawable.taxi), "Your Current Location", true, false);
 
         } else {
-            Toast.makeText(getActivity(), "coudn't get your location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.not_get_location, Toast.LENGTH_SHORT).show();
         }
     }
 
-
     public void requestDirection() {
 
-        Snackbar.make(view, DIRECTION_REQUEST, Snackbar.LENGTH_SHORT).show();
+        if(view!=null){
+            Snackbar.make(view, DIRECTION_REQUEST, Snackbar.LENGTH_SHORT).show();
+        }
         GoogleDirection.withServerKey(serverKey)
                 .from(origin)
                 .to(destination)
@@ -403,7 +354,7 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
         params.put("drop_address", drop_address);
         String p = pikup_location.latitude + " ," + pikup_location.longitude;
         String d = drop_locatoin.latitude + " ," + drop_locatoin.longitude;
-      //  Log.e("print", p + "   " + d);
+        //  Log.e("print", p + "   " + d);
 
         params.put("pikup_location", p);
         params.put("drop_locatoin", d);
@@ -412,7 +363,6 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
         params.put("time",getDateCurrentTimeZone());
         Server.setHeader(key);
 
-        Log.e("session", key);
         Server.post("api/user/addRide/format/json", params, new JsonHttpResponseHandler() {
             @Override
             public void onStart() {
@@ -465,7 +415,6 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
 
     }
 
-
     public void calcaulatedistance() {
         android.location.Location location1 = new android.location.Location("location1");
         android.location.Location location2 = new android.location.Location("location2");
@@ -478,71 +427,45 @@ public class RequestFragment extends FragmentManagePermission implements OnMapRe
         Log.d("distance", d + "");
         Double aDouble = d;
 
-        if (aDouble != null) {
-            if (fare != null && fare != 0.0) {
+        if (fare != null && fare != 0.0) {
+
+            Double ff = aDouble * fare;
+
+            finalfare = round(ff, 2);
+
+            txt_fare.setText(finalfare + " " + sessionManager.getUnit());
 
 
-                DecimalFormat dtime = new DecimalFormat("##.##");
-
-                Double ff = aDouble * fare;
-
-                finalfare = Double.valueOf(dtime.format(ff));
-
-                txt_fare.setText(finalfare + " $");
-
-                Log.d("decimal time format", finalfare + "");
-
-            } else {
-                txt_fare.setText(" $");
-            }
+        } else {
+            txt_fare.setText(sessionManager.getUnit());
         }
 
-      /*  CalculateDistanceTime distance_task = new CalculateDistanceTime(getActivity());
-        distance_task.getDirectionsUrl(origin, destination);
-        distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
-            @Override
-            public void taskCompleted(String[] time_distance) {
-                String dis = time_distance[0];
-
-                if (dis.contains("km")) {
-                    distance = dis.replace("km", "");
-                    calculateFare(distance);
-                    //Toast.makeText(getActivity(), dis+"  km is   called", Toast.LENGTH_SHORT).show();
-                } else {
-                    txt_fare.setText("$");
-                    distanceAlert("You can't make ride request for less than 1 KM distance");
-                    //TastyToast.makeText(getActivity(), "distance error", TastyToast.LENGTH_LONG, TastyToast.ERROR).show();
-                }
-                *//*else if (dis.contains("m")) {
-                    Toast.makeText(getActivity(), dis+"   m is  called", Toast.LENGTH_SHORT).show();
-                    distance = dis.replace("m", "");
-                }*//*
-                Log.d("distance", distance);
-
-            }
-        });*/
     }
 
 
     public void distanceAlert(String message) {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        alertDialog.setTitle("INVALID DISTANCE");
-        alertDialog.setMessage(message);
-        alertDialog.setCancelable(true);
-        Drawable drawable = ContextCompat.getDrawable(getActivity(), R.mipmap.ic_warning_white_24dp);
-        drawable = DrawableCompat.wrap(drawable);
-        DrawableCompat.setTint(drawable, Color.RED);
-        alertDialog.setIcon(drawable);
+        try {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+            alertDialog.setTitle("INVALID DISTANCE");
+            alertDialog.setMessage(message);
+            alertDialog.setCancelable(true);
+            Drawable drawable = ContextCompat.getDrawable(getActivity(), R.mipmap.ic_warning_white_24dp);
+            drawable = DrawableCompat.wrap(drawable);
+            DrawableCompat.setTint(drawable, Color.RED);
+            alertDialog.setIcon(drawable);
 
 
-        alertDialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                alert.cancel();
-            }
-        });
-        alert = alertDialog.create();
-        alert.show();
+            alertDialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            alertDialog.create().show();
+        } catch (Exception e) {
+
+        }
+
     }
 }

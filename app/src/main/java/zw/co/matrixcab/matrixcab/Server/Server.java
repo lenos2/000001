@@ -18,6 +18,7 @@ public class Server {
     public static final String BASE_URL = "http://www.matrixcab.co.zw/cabadmin/";            // Your admin panel URL
     public static final String ENVIRONMENT= PayPalConfiguration.ENVIRONMENT_SANDBOX;    //PayPalConfiguration.ENVIRONMENT_PRODUCTION     for production
     public static final String PAYPAL_KEY="AYi2W29-PSkOI0-utUCLVEuPL1qP8BjYCEOAz3OlnDomdc8yXl10QbGJVX3yc7QgZwM2AEgGn-3K-aoM";          //Paypal Account key
+    public static final String MAPS_APIKEY_BROWSER="AIzaSyAlBu8MsC7jxJ68rpRR722Ojl_HQiWpnhQ";          //This quiz is required for place auto complete
 
     private static final String TAG = "server";
     private static AsyncHttpClient client = new AsyncHttpClient();
@@ -28,7 +29,7 @@ public class Server {
         client.setTimeout(3000);
         client.get(getAbsoluteUrl(url), params, responseHandler);
 
-        Log.d(TAG, getAbsoluteUrl(url));
+        Log.e(TAG, getAbsoluteUrl(url)+params.toString());
     }
 
     public static void postSync(String url, RequestParams params, JsonHttpResponseHandler jsonHttpResponseHandler) {
@@ -49,6 +50,12 @@ public class Server {
     public static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
 
+    }
+    public static void getPublic(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(3000);
+        client.get(url, params, responseHandler);
+
+        Log.d(TAG, getAbsoluteUrl(url));
     }
 
     public static void setHeader(String header) {
